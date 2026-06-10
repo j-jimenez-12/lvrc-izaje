@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LVRC Izaje">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1F4E79">
+<title>LVRC — Izaje SADDN</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --az1:#1F4E79;--az2:#2E75B6;--az3:#D6E4F0;--az4:#EBF3FB;
+  --rj1:#C00000;--rj2:#FFE6E6;
+  --vd1:#1E6B31;--vd2:#E2EFDA;
+  --am1:#E65100;--am2:#FFF9C4;
+  --gr1:#404040;--gr2:#757575;--gr3:#F2F2F2;--gr4:#FAFAFA;
+  --bl:#FFFFFF;--bk:#1A1A1A;
+  --radius:10px;--shadow:0 2px 12px rgba(0,0,0,.12);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+}
+html{font-size:15px;-webkit-text-size-adjust:100%;overscroll-behavior:none}
+body{
+  font-family:var(--font);background:var(--gr4);color:var(--bk);
+  min-height:100vh;padding-top:var(--sat);
+}
+input,select,textarea{
+  font-size:16px!important;-webkit-appearance:none;-moz-appearance:none;
+  appearance:none;border-radius:0;font-family:var(--font);
+}
+button{-webkit-appearance:none;-webkit-tap-highlight-color:transparent;cursor:pointer;font-family:var(--font)}
+
+/* HEADER */
+.app-header{
+  background:var(--az1);color:#fff;padding:14px 16px 10px;
+  position:-webkit-sticky;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.app-header h1{font-size:1rem;font-weight:700;letter-spacing:.3px}
+.app-header p{font-size:.72rem;opacity:.8;margin-top:2px}
+.header-meta{display:flex;justify-content:space-between;align-items:center}
+.badge{background:var(--az2);border-radius:6px;padding:2px 8px;font-size:.65rem;font-weight:600}
+.progress-wrap{background:rgba(255,255,255,.2);height:4px;border-radius:2px;margin-top:10px}
+.progress-bar{height:4px;border-radius:2px;background:#FFD966;transition:width .4s ease}
+
+/* CONTENT */
+.content{padding:12px;padding-bottom:calc(100px + env(safe-area-inset-bottom,0px));max-width:640px;margin:0 auto}
+
+/* STEP NAV */
+.step-nav{display:flex;gap:6px;overflow-x:auto;padding:10px 0 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.step-nav::-webkit-scrollbar{display:none}
+.step-btn{flex:0 0 auto;padding:6px 12px;border-radius:20px;border:1.5px solid var(--az2);background:#fff;color:var(--az2);font-size:.7rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
+.step-btn.active{background:var(--az2);color:#fff}
+.step-btn.done{background:var(--vd2);border-color:var(--vd1);color:var(--vd1)}
+
+/* SECTION */
+.section-card{display:none}
+.section-card.active{display:block}
+.sec-title{background:var(--az2);color:#fff;border-radius:var(--radius) var(--radius) 0 0;padding:10px 14px;font-size:.82rem;font-weight:700;line-height:1.4}
+.sec-title span{display:block;font-size:.65rem;font-weight:400;opacity:.85;margin-top:2px}
+
+/* DATOS */
+.datos-grid{background:#fff;border-radius:0 0 var(--radius) var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.dato-row{display:flex;border-bottom:1px solid #eee}
+.dato-row:last-child{border-bottom:none}
+.dato-label{background:var(--az4);color:var(--az1);font-size:.7rem;font-weight:600;padding:10px;min-width:140px;max-width:140px;display:flex;align-items:center;line-height:1.3}
+.dato-row input,.dato-row select{flex:1;border:none;outline:none;padding:10px;font-size:16px!important;font-family:var(--font);background:#fff;color:var(--bk);min-height:44px;-webkit-appearance:none;appearance:none;border-radius:0}
+.dato-row input:focus{background:#fffbf0}
+.dato-row select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%232E75B6' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+
+/* ITEMS */
+.items-wrap{background:#fff;border-radius:0 0 var(--radius) var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.col-header{display:grid;grid-template-columns:38px 1fr 88px;background:var(--az1);color:#fff;font-size:.65rem;font-weight:700;padding:6px 10px;gap:6px;align-items:center}
+.col-header .ch-opts{display:flex;justify-content:space-around}
+.item-row{display:grid;grid-template-columns:38px 1fr 88px;border-bottom:1px solid #eee;gap:6px;align-items:stretch;transition:background .15s}
+.item-row:last-child{border-bottom:none}
+.item-row.critico{background:var(--rj2)}
+.item-row.answered-si{background:#f0fff4}
+.item-row.answered-no{background:#fff0f0}
+.item-row.answered-na{background:var(--gr3)}
+.item-num{display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--az1);padding:4px 2px;border-right:1px solid #eee}
+.item-row.critico .item-num{color:var(--rj1)}
+.item-body{padding:8px 6px 8px 0}
+.item-text{font-size:.76rem;line-height:1.45;color:var(--bk)}
+.item-row.critico .item-text{font-weight:600}
+.item-norma{font-size:.62rem;color:var(--az2);margin-top:3px;font-weight:500}
+.item-opts{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:6px 8px 6px 0}
+.opt-btn{flex:1;border:1.5px solid #ccc;border-radius:6px;background:#fff;font-size:.65rem;font-weight:700;cursor:pointer;min-height:26px;display:flex;align-items:center;justify-content:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.opt-btn.si{border-color:var(--vd1);color:var(--vd1)}
+.opt-btn.no{border-color:var(--rj1);color:var(--rj1)}
+.opt-btn.na{border-color:var(--gr2);color:var(--gr2)}
+.opt-btn.si.sel{background:var(--vd1);color:#fff}
+.opt-btn.no.sel{background:var(--rj1);color:#fff}
+.opt-btn.na.sel{background:var(--gr2);color:#fff}
+
+/* OBS */
+.obs-wrap{padding:10px;background:#fff;border-top:2px solid var(--az3)}
+.obs-label{font-size:.68rem;font-weight:700;color:var(--az1);margin-bottom:6px}
+.obs-wrap textarea{width:100%;border:1.5px solid #ddd;border-radius:8px;padding:8px 10px;font-size:16px!important;font-family:var(--font);resize:vertical;min-height:72px;outline:none;transition:border-color .2s;color:var(--bk);-webkit-appearance:none}
+.obs-wrap textarea:focus{border-color:var(--az2)}
+
+/* RESULTADO */
+.result-panel{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:14px}
+.result-apto{background:var(--vd2);border:2px solid var(--vd1)}
+.result-suspendida{background:var(--rj2);border:2px solid var(--rj1)}
+.result-pendiente{background:var(--am2);border:2px solid var(--am1)}
+.result-header{padding:12px 14px;display:flex;align-items:center;gap:10px}
+.result-icon{font-size:1.8rem}
+.result-title{font-size:1rem;font-weight:800}
+.result-apto .result-title{color:var(--vd1)}
+.result-suspendida .result-title{color:var(--rj1)}
+.result-pendiente .result-title{color:var(--am1)}
+.result-sub{font-size:.74rem;color:var(--gr1);margin-top:2px}
+.result-detail{padding:0 14px 12px}
+.no-items-list{list-style:none}
+.no-items-list li{font-size:.74rem;color:var(--rj1);font-weight:600;padding:3px 0;border-bottom:1px dashed #fbb}
+.no-items-list li:last-child{border-bottom:none}
+
+/* EMAIL */
+.email-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
+.email-card-header{background:var(--az1);color:#fff;padding:10px 14px;font-size:.82rem;font-weight:700}
+.email-form{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.form-group label{display:block;font-size:.7rem;font-weight:700;color:var(--az1);margin-bottom:4px}
+.form-group input{width:100%;border:1.5px solid #ddd;border-radius:8px;padding:10px 12px;font-size:16px!important;font-family:var(--font);outline:none;transition:border-color .2s;min-height:44px;-webkit-appearance:none;color:var(--bk)}
+.form-group input:focus{border-color:var(--az2)}
+.form-note{font-size:.68rem;color:var(--gr2);line-height:1.5;background:var(--az4);border-radius:8px;padding:8px 12px}
+.form-note a{color:var(--az2)}
+
+/* FIRMAS */
+.firma-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.firma-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.firma-header{background:var(--az1);color:#fff;padding:8px 12px;font-size:.72rem;font-weight:700}
+.firma-body{padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.firma-body input{width:100%;border:1px solid #ddd;border-radius:6px;padding:8px 10px;font-size:16px!important;font-family:var(--font);outline:none;min-height:38px;background:var(--gr4);-webkit-appearance:none;color:var(--bk)}
+.firma-body input:focus{border-color:var(--az2);background:#fff}
+.firma-canvas-wrap{position:relative}
+.firma-canvas-wrap label{font-size:.62rem;color:var(--gr2);font-weight:600;display:block;margin-bottom:4px}
+canvas.sig-pad{width:100%;height:70px;border:1.5px dashed #aaa;border-radius:6px;touch-action:none;cursor:crosshair;background:#fafafa;display:block}
+.clear-sig{position:absolute;top:18px;right:4px;background:none;border:none;font-size:.6rem;color:var(--rj1);cursor:pointer;padding:4px}
+
+/* FOOTER */
+.footer-cta{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:#fff;border-top:1px solid #e0e0e0;
+  padding:10px 12px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  display:flex;gap:8px;
+  box-shadow:0 -4px 16px rgba(0,0,0,.1);
+}
+/* Centrar en desktop */
+@media(min-width:641px){
+  .footer-cta{max-width:640px;left:50%;transform:translateX(-50%);right:auto;width:100%}
+}
+.btn{flex:1;border:none;border-radius:10px;padding:13px 10px;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;min-height:48px;-webkit-tap-highlight-color:transparent}
+.btn-prev{background:var(--gr3);color:var(--gr1)}
+.btn-next{background:var(--az2);color:#fff}
+.btn-send{background:var(--vd1);color:#fff}
+.btn-send:disabled{background:#aaa;cursor:default}
+.btn:active{transform:scale(.97)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:380px;padding:24px 20px;box-shadow:0 8px 40px rgba(0,0,0,.25);animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+@-webkit-keyframes slideUp{from{-webkit-transform:translateY(30px);opacity:0}to{-webkit-transform:translateY(0);opacity:1}}
+.modal h3{font-size:1rem;font-weight:800;margin-bottom:8px}
+.modal p{font-size:.8rem;color:var(--gr1);line-height:1.6;margin-bottom:16px;white-space:pre-line}
+.modal-actions{display:flex;gap:10px}
+.modal-actions button{flex:1;padding:12px;border-radius:10px;border:none;font-size:.82rem;font-weight:700;cursor:pointer;min-height:48px;font-family:var(--font)}
+.btn-modal-ok{background:var(--vd1);color:#fff}
+.btn-modal-cancel{background:var(--gr3);color:var(--gr1)}
+
+/* SPINNER */
+.spinner{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bk);color:#fff;padding:10px 20px;border-radius:20px;font-size:.8rem;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:600;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--vd1)}
+.toast.error{background:var(--rj1)}
+
+/* MISC */
+.mt10{margin-top:10px}.mt14{margin-top:14px}
+.stat-row{display:flex;gap:8px;margin-bottom:10px}
+.stat-chip{flex:1;border-radius:8px;padding:8px 6px;text-align:center;font-size:.7rem}
+.stat-chip b{display:block;font-size:1.2rem}
+.chip-si{background:var(--vd2);color:var(--vd1)}
+.chip-no{background:var(--rj2);color:var(--rj1)}
+.chip-na{background:var(--gr3);color:var(--gr1)}
+.chip-pen{background:var(--am2);color:var(--am1)}
+
+/* DESKTOP enhancements */
+@media(min-width:641px){
+  body{background:#e8ecf0}
+  .app-header{max-width:640px;margin:0 auto;border-radius:0 0 12px 12px}
+  .content{padding-top:16px}
+  .dato-label{min-width:160px;max-width:160px}
+}
+
+/* PRINT */
+@media print{
+  .footer-cta,.step-nav,.app-header,.modal-overlay,.toast{display:none!important}
+  .section-card{display:block!important;page-break-inside:avoid}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-meta">
+    <div>
+      <h1>Lista de Verificación — Izaje</h1>
+      <p>FO-SADDN-IZJ-002  Rev.0  |  PRO-01-SG-03 / ASME B30</p>
+    </div>
+    <span class="badge" id="stepLabel">1 / 11</span>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:9%"></div></div>
+</div>
+
+<div class="content">
+  <nav class="step-nav" id="stepNav"></nav>
+
+<!-- SECCIÓN 0 — DATOS GENERALES -->
+<div class="section-card active" id="sec-0">
+  <div class="sec-title">Datos Generales de la Maniobra<span>Complete antes de iniciar la verificación</span></div>
+  <div class="datos-grid">
+    <div class="dato-row"><div class="dato-label">Proyecto / Frente</div><input type="text" id="dg_proyecto" placeholder="SADDN / Caleta Viuda" autocomplete="off"></div>
+    <div class="dato-row"><div class="dato-label">Fecha</div><input type="date" id="dg_fecha"></div>
+    <div class="dato-row"><div class="dato-label">Hora inicio</div><input type="time" id="dg_hora_ini"></div>
+    <div class="dato-row"><div class="dato-label">Hora término</div><input type="time" id="dg_hora_fin"></div>
+    <div class="dato-row"><div class="dato-label">Tipo de maniobra</div><input type="text" id="dg_maniobra" placeholder="Ej: Izaje tubería HDPE 800mm" autocomplete="off"></div>
+    <div class="dato-row"><div class="dato-label">Equipo de izaje</div><input type="text" id="dg_equipo" placeholder="Marca / Modelo / Patente" autocomplete="off"></div>
+    <div class="dato-row"><div class="dato-label">Cap. nominal (t)</div><input type="number" id="dg_cap" placeholder="0.0" step="0.1" inputmode="decimal"></div>
+    <div class="dato-row"><div class="dato-label">Peso carga (t)</div><input type="number" id="dg_peso" placeholder="0.0" step="0.1" inputmode="decimal"></div>
+    <div class="dato-row"><div class="dato-label">Rigger / Lic. N°</div><input type="text" id="dg_rigger" placeholder="Nombre / N° Licencia" autocomplete="off"></div>
+    <div class="dato-row"><div class="dato-label">Operador / Lic. D</div><input type="text" id="dg_operador" placeholder="Nombre / N° Licencia" autocomplete="off"></div>
+    <div class="dato-row"><div class="dato-label">Supervisor</div><input type="text" id="dg_supervisor" placeholder="Nombre y cargo" autocomplete="off"></div>
+    <div class="dato-row"><div class="dato-label">Prevencionista</div><input type="text" id="dg_prev" placeholder="Nombre y cargo" autocomplete="off"></div>
+    <div class="dato-row">
+      <div class="dato-label">Categoría riesgo</div>
+      <select id="dg_categoria" style="flex:1;border:none;padding:10px;padding-right:32px;min-height:44px;outline:none;background:#fff;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%278%27 viewBox=%270 0 12 8%27%3E%3Cpath d=%27M1 1l5 5 5-5%27 stroke=%27%232E75B6%27 stroke-width=%272%27 fill=%27none%27 stroke-linecap=%27round%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 12px center;-webkit-appearance:none;appearance:none;color:#1A1A1A">
+        <option value="">— Seleccionar —</option>
+        <option value="BAJO">BAJO — Firma Supervisor</option>
+        <option value="MEDIO">MEDIO — Firma Jefe Área</option>
+        <option value="CRÍTICO">CRÍTICO — Firma Jefe Terreno + OT</option>
+      </select>
+    </div>
+    <div class="dato-row"><div class="dato-label">Plan de Izaje N°</div><input type="text" id="dg_plan" placeholder="N° / Fecha aprobación" autocomplete="off"></div>
+  </div>
+</div>
+
+<!-- SECCIONES 1-8 dinámicas -->
+<div id="dynamicSections"></div>
+
+<!-- SECCIÓN 9 — RESULTADO -->
+<div class="section-card" id="sec-9">
+  <div class="sec-title">Resultado Global<span>Resumen automático de la verificación</span></div>
+  <div class="mt10">
+    <div class="stat-row">
+      <div class="stat-chip chip-si"><b id="cnt-si">0</b>SI</div>
+      <div class="stat-chip chip-no"><b id="cnt-no">0</b>NO</div>
+      <div class="stat-chip chip-na"><b id="cnt-na">0</b>N/A</div>
+      <div class="stat-chip chip-pen"><b id="cnt-pen">0</b>Pend.</div>
+    </div>
+    <div id="resultPanel" class="result-panel result-pendiente">
+      <div class="result-header">
+        <span class="result-icon" id="resultIcon">⏳</span>
+        <div><div class="result-title" id="resultTitle">Verificación incompleta</div><div class="result-sub" id="resultSub">Complete todos los ítems</div></div>
+      </div>
+    </div>
+    <div class="obs-wrap mt10">
+      <div class="obs-label">OBSERVACIONES GENERALES / ACCIONES CORRECTIVAS</div>
+      <textarea id="obs_global" placeholder="Registre aquí las observaciones generales y acciones correctivas..."></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- SECCIÓN 10 — FIRMAS -->
+<div class="section-card" id="sec-10">
+  <div class="sec-title">Firmas y Envío<span>Complete los datos y firmas antes de enviar</span></div>
+  <div class="email-card mt10">
+    <div class="email-card-header">⚙️  Configuración de Envío</div>
+    <div class="email-form">
+      <div class="form-group">
+        <label>Tu correo electrónico (quien llena)</label>
+        <input type="email" id="email_from" placeholder="rigger@empresa.cl" inputmode="email" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Correo de respaldo / archivo (SSOMA / Supervisor)</label>
+        <input type="email" id="email_backup" placeholder="ssoma.saddn@empresa.cl" inputmode="email" autocomplete="off">
+      </div>
+      <div class="form-note">
+        📧 El informe se enviará a <strong>ambos correos</strong>.<br>
+        Para envío automático, crea cuenta gratis en
+        <a href="https://www.emailjs.com" target="_blank" rel="noopener">EmailJS.com</a>
+        e ingresa tu <strong>Public Key</strong> y <strong>Service ID</strong>.<br>
+        <em>Alternativa: usa «Copiar informe» para enviarlo manualmente.</em>
+      </div>
+      <div class="form-group">
+        <label>EmailJS Public Key</label>
+        <input type="text" id="ejs_key" placeholder="Pega tu Public Key aquí" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>EmailJS Service ID</label>
+        <input type="text" id="ejs_service" placeholder="service_xxxxxxx" autocomplete="off">
+      </div>
+    </div>
+  </div>
+  <div class="firma-grid mt10">
+    <div class="firma-card">
+      <div class="firma-header">RIGGER</div>
+      <div class="firma-body">
+        <input type="text" id="f_rigger_nombre" placeholder="Nombre completo" autocomplete="off">
+        <input type="text" id="f_rigger_lic" placeholder="N° Licencia Rigger" autocomplete="off">
+        <div class="firma-canvas-wrap">
+          <label>Firma digital</label>
+          <canvas class="sig-pad" id="sig-rigger"></canvas>
+          <button class="clear-sig" data-target="sig-rigger">✕ Borrar</button>
+        </div>
+      </div>
+    </div>
+    <div class="firma-card">
+      <div class="firma-header">SUPERVISOR</div>
+      <div class="firma-body">
+        <input type="text" id="f_sup_nombre" placeholder="Nombre completo" autocomplete="off">
+        <input type="text" id="f_sup_cargo" placeholder="Cargo" autocomplete="off">
+        <div class="firma-canvas-wrap">
+          <label>Firma digital</label>
+          <canvas class="sig-pad" id="sig-supervisor"></canvas>
+          <button class="clear-sig" data-target="sig-supervisor">✕ Borrar</button>
+        </div>
+      </div>
+    </div>
+    <div class="firma-card">
+      <div class="firma-header">PREVENCIONISTA</div>
+      <div class="firma-body">
+        <input type="text" id="f_prev_nombre" placeholder="Nombre completo" autocomplete="off">
+        <input type="text" id="f_prev_cargo" placeholder="Cargo" autocomplete="off">
+        <div class="firma-canvas-wrap">
+          <label>Firma digital</label>
+          <canvas class="sig-pad" id="sig-prev"></canvas>
+          <button class="clear-sig" data-target="sig-prev">✕ Borrar</button>
+        </div>
+      </div>
+    </div>
+    <div class="firma-card">
+      <div class="firma-header">OPERADOR</div>
+      <div class="firma-body">
+        <input type="text" id="f_op_nombre" placeholder="Nombre completo" autocomplete="off">
+        <input type="text" id="f_op_lic" placeholder="N° Licencia Clase D" autocomplete="off">
+        <div class="firma-canvas-wrap">
+          <label>Firma digital</label>
+          <canvas class="sig-pad" id="sig-operador"></canvas>
+          <button class="clear-sig" data-target="sig-operador">✕ Borrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-cta" id="footerCTA">
+  <button class="btn btn-prev" id="btnPrev" onclick="navigate(-1)">← Anterior</button>
+  <button class="btn btn-next" id="btnNext" onclick="navigate(1)">Siguiente →</button>
+</div>
+</div><!-- /content -->
+
+<!-- MODALES -->
+<div class="modal-overlay" id="modalSend">
+  <div class="modal">
+    <h3>📤 Enviar informe LVRC</h3>
+    <p id="modalSendMsg">¿Confirma el envío del informe?</p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="document.getElementById('modalSend').classList.remove('open')">Cancelar</button>
+      <button class="btn-modal-ok" onclick="sendReport()">Enviar</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalCopy">
+  <div class="modal">
+    <h3>📋 Sin configuración EmailJS</h3>
+    <p>Ingresa Public Key y Service ID de EmailJS para envío automático, o usa «Copiar informe» para enviarlo manualmente.</p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="document.getElementById('modalCopy').classList.remove('open')">Cerrar</button>
+      <button class="btn-modal-ok" onclick="copyReport()">📋 Copiar informe</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SECCIONES=[
+  {id:1,titulo:"Documentación y Autorizaciones",norma:"PRO-01-SG-03 §7.1 / §7.13",items:[
+    {n:"1.1",txt:"El Plan de Izaje está elaborado, firmado y aprobado según la categoría de riesgo (Bajo: Supervisor / Medio: Jefe Área / Crítico: Jefe Terreno + OT).",ref:"PRO §7.13",c:true},
+    {n:"1.2",txt:"El Permiso de Izaje diario está emitido y firmado por el Supervisor antes del inicio de la maniobra.",ref:"PRO §7.1",c:true},
+    {n:"1.3",txt:"El AST/ART fue elaborada y firmada por Supervisor, Rigger y Prevencionista.",ref:"PRO §7.16",c:true},
+    {n:"1.4",txt:"El Registro de Difusión del procedimiento (Anexo C) está completado y firmado por todo el personal participante.",ref:"PRO Anexo C",c:false},
+    {n:"1.5",txt:"El Plan de Izaje incluye: peso de la carga, radio de operación, largo de pluma, tipo de eslingas y esquema de la maniobra.",ref:"PRO §7.13 / ASME B30.5-2.1",c:false},
+    {n:"1.6",txt:"Para izaje Crítico: se cuenta con diagramas de rigging, planta, elevaciones, maqueta 3D y cálculo de tensiones firmados.",ref:"PRO §7.13.3",c:true},
+    {n:"1.7",txt:"Para maniobras en equipos flotantes: se cuenta con cálculo de efectos dinámicos según DNV-OS-H205.",ref:"DNV-OS-H205",c:true},
+  ]},
+  {id:2,titulo:"Equipo de Izaje — Condición y Certificación",norma:"ASME B30.5 / B30.22 / PRO §7.2",items:[
+    {n:"2.1",txt:"El equipo de izaje posee certificación vigente emitida por organismo inscrito en INN. Carpeta de vida disponible en obra.",ref:"PRO §7.2",c:true},
+    {n:"2.2",txt:"El Check List / Inspección diaria del equipo (Anexo E o G según tipo) fue completado y firmado por el Operador.",ref:"PRO Anexo E/G",c:true},
+    {n:"2.3",txt:"La Tabla de Carga del fabricante está disponible en la cabina, es legible y está cargada en el sistema LMI (grúa estructural).",ref:"ASME B30.5-3.3 / PRO §7.3",c:true},
+    {n:"2.4",txt:"La Tabla de Carga está traducida a unidades métricas y firmada por realizador y revisor competente.",ref:"PRO §7.3",c:false},
+    {n:"2.5",txt:"Los outriggers/estabilizadores están extendidos al 100% y apoyados sobre almohadillas niveladas. (Si extensión total no es posible: reclasificar a Izaje Crítico).",ref:"ASME B30.5-2.1.4 / PRO §7.10",c:true},
+    {n:"2.6",txt:"Grúas sobre orugas: superficie nivelada, resistencia del suelo verificada, distancia mínima 2 m desde borde de excavación/zanja.",ref:"PRO §7.10",c:false},
+    {n:"2.7",txt:"El LMI/sistema limitador de carga está operativo y configurado con la tabla de carga correcta para la configuración actual.",ref:"ASME B30.5-3.1.3 / PRO §7.10",c:true},
+    {n:"2.8",txt:"El anemómetro del equipo está operativo. Se cuenta además con anemómetro portátil (Rigger o Supervisor).",ref:"PRO §7.4 / ASME B30.5-2.1.1",c:false},
+    {n:"2.9",txt:"El pesómetro / celda de carga está operativo y calibrado para verificar el peso real al inicio del izaje.",ref:"PRO §7.10",c:true},
+    {n:"2.10",txt:"El gancho principal posee seguro (safety latch) en perfecto estado. Sin deformación, grietas ni desgaste visible.",ref:"ASME B30.10 / PRO §7.11",c:false},
+    {n:"2.11",txt:"Los cables de la grúa están inspeccionados: sin kinks, sin reducción de diámetro > 3%, sin rotura de alambres > 6 en un paso de torón.",ref:"ASME B30.5-3.3.3",c:true},
+    {n:"2.12",txt:"El radio de trabajo programado corresponde a la Tabla de Carga y el % de utilización no supera el 85% (75% para izaje estándar).",ref:"ASME B30.5-3.3 / PRO §7.10",c:true},
+  ]},
+  {id:3,titulo:"Accesorios de Izaje — Inspección y Certificación",norma:"ASME B30.9 / B30.26 / PRO §7.6-7.9",items:[
+    {n:"3.1",txt:"Todos los accesorios (eslingas, estrobos, grilletes, cáncamos) poseen certificado de fabricante vigente con SWL claramente marcado.",ref:"ASME B30.9-1.1 / B30.26",c:true},
+    {n:"3.2",txt:"El Formulario de Inspección de Accesorios (Anexo D - FO-01-SG-004) fue completado y firmado por el Rigger y Supervisor.",ref:"PRO Anexo D",c:true},
+    {n:"3.3",txt:"ESLINGAS DE CADENA: sin deformación, corrosión excesiva, elongación ni eslabones doblados. Clasificación verificada (Grado 80 o 100).",ref:"ASME B30.9-2.2 / B30.9-2.7",c:true},
+    {n:"3.4",txt:"ESLINGAS DE CABLE DE ACERO: sin kinks, cocas, aplastamiento ni corrosión severa. SWL calculado sobre carga de rotura garantizada.",ref:"ASME B30.9-2.1 / B30.9-1.5",c:true},
+    {n:"3.5",txt:"ESLINGAS SINTÉTICAS: sin cortes, quemaduras, manchas de hidrocarburo, UV extremo ni desflecamiento. Sin burbujas en la cubierta.",ref:"ASME B30.9-2.3 / B30.9-2.7",c:true},
+    {n:"3.6",txt:"Si se usa en lazo (choker) o canasta (basket), se aplican los factores de reducción de capacidad del fabricante.",ref:"ASME B30.9-2.7",c:false},
+    {n:"3.7",txt:"GRILLETES: tipo correcto (bow/dee), SWL marcado. Pasador completamente enroscado + mousing en grilletes de arco.",ref:"ASME B30.26-2.1 / PRO §7.9",c:true},
+    {n:"3.8",txt:"CÁNCAMOS: rosca completa empotrada, contratuerca o pin de seguridad. Carga aplicada en dirección de diseño.",ref:"ASME B30.26-2.5",c:false},
+    {n:"3.9",txt:"Los bordes vivos de la carga están protegidos con cubrecantos metálicos o fundas protectoras de eslinga.",ref:"ASME B30.9-2.7 / PRO §7.10",c:false},
+    {n:"3.10",txt:"No se usan cables de acero como eslingas, ni se enrollan completamente alrededor de un gancho.",ref:"PRO §7.11",c:true},
+    {n:"3.11",txt:"Los accesorios NO han estado en contacto con corrosivos, solventes, soldadura o calor excesivo.",ref:"ASME B30.9-2.7",c:false},
+    {n:"3.12",txt:"El gancho del equipo está posicionado sobre el centro de gravedad de la carga antes de iniciar el izaje.",ref:"PRO §7.11 / ASME B30.5-2.1",c:true},
+  ]},
+  {id:4,titulo:"Competencias del Personal",norma:"PRO §3.9 / §3.10 / ASME B30.5-3.1",items:[
+    {n:"4.1",txt:"El Operador posee Licencia Clase D vigente y Certificación INN para el tipo de equipo. Documentos portados físicamente.",ref:"PRO §3.10 / ASME B30.5-3.1.1",c:true},
+    {n:"4.2",txt:"El Rigger posee Licencia de Rigger vigente emitida por entidad competente. La porta físicamente durante toda la maniobra.",ref:"PRO §3.9",c:true},
+    {n:"4.3",txt:"El Rigger y el Operador coordinaron el código de señales: visual (ANSI B30.5 Apéndice A) o radiotransmisor.",ref:"ASME B30.5-3.3.2 / PRO §7.10",c:true},
+    {n:"4.4",txt:"El Rigger porta silbato para señal de inicio. El sistema de comunicación radial está operativo (frecuencia probada).",ref:"PRO §7.10",c:false},
+    {n:"4.5",txt:"Todo el personal participante recibió la charla de seguridad previa y firmó el registro de difusión (Formato Anexo C).",ref:"PRO §7.10",c:true},
+    {n:"4.6",txt:"El Rigger está identificado con chaleco reflectante específico o casco con señalética de Rigger.",ref:"PRO §7.10",c:false},
+  ]},
+  {id:5,titulo:"Condiciones del Área y Entorno",norma:"PRO §7.10-7.11 / ASME B30.5-2.1 / NFPA 70E",items:[
+    {n:"5.1",txt:"VELOCIDAD DEL VIENTO medida y registrada. Está por debajo del límite del Plan de Izaje (máx. 40 km/h sin efecto vela).",ref:"ASME B30.5-2.1.1 / PRO §7.4",c:true},
+    {n:"5.2",txt:"El área de la maniobra está segregada con conos, cadenas o barreras duras. Nadie ajeno dentro del perímetro.",ref:"PRO §7.10",c:true},
+    {n:"5.3",txt:"El área segregada cubre como mínimo el radio de trabajo de la pluma en todas las direcciones de movimiento.",ref:"PRO §7.10",c:true},
+    {n:"5.4",txt:"Se verificó la ausencia de interferencias aéreas (líneas eléctricas, cables, estructuras). Si existen, se establecieron controles.",ref:"NFPA 70E / ASME B30.5-2.1.2",c:true},
+    {n:"5.5",txt:"Distancia a líneas eléctricas energizadas: > 1 m (≤50 kV) / > 3 m (≤200 kV) / > 5 m (≤750 kV).",ref:"NFPA 70E / PRO Anexo B §8",c:true},
+    {n:"5.6",txt:"Terreno bajo el equipo es estable, sin excavaciones ni relleno suelto. Si existen: distancia mínima 2 m desde el borde.",ref:"PRO §7.10",c:false},
+    {n:"5.7",txt:"La iluminación es adecuada para visualizar toda la trayectoria de la carga. Nocturno: iluminación artificial habilitada.",ref:"PRO §3.7",c:false},
+    {n:"5.8",txt:"No existe personal bajo la línea de suspensión de la carga ni en la trayectoria de movimiento.",ref:"PRO §7.10",c:true},
+    {n:"5.9",txt:"Se dispone de cuerdas guía (vientos) para controlar la carga. Personal de vientos capacitado y posicionado.",ref:"PRO §7.10 / §7.11",c:true},
+    {n:"5.10",txt:"La carga no contiene materiales sueltos que puedan caer durante la maniobra.",ref:"PRO §7.11",c:false},
+  ]},
+  {id:6,titulo:"Entorno Marítimo SADDN",norma:"⚠ APLICAR SOLO EN FRENTES MARÍTIMOS — DNV-OS-H205 / PRO §7.11",items:[
+    {n:"6.1",txt:"Todo el personal en zona marítima porta chaleco salvavidas durante la maniobra.",ref:"PRO §7.11",c:true},
+    {n:"6.2",txt:"Salvavidas circulares (picarón) y cuerdas de rescate están disponibles y accesibles en el frente de trabajo.",ref:"PRO §7.11",c:true},
+    {n:"6.3",txt:"Las barandas perimetrales de la plataforma/muelle están habilitadas y en buen estado.",ref:"PRO §7.11",c:false},
+    {n:"6.4",txt:"Se evaluaron las condiciones del mar: oleaje, viento marino, corriente y visibilidad. Son aptas para la maniobra.",ref:"DNV-OS-H205 §4",c:true},
+    {n:"6.5",txt:"Para equipo sobre barcaza/pontón: se realizó cálculo de efectos dinámicos (DNV-OS-H205) y la estructura soportante tiene memoria de cálculo aprobada por OT.",ref:"DNV-OS-H205 §7 / PRO §7.13.3",c:true},
+    {n:"6.6",txt:"Para carga sumergida: el peso real (agua + vacío de succión + sedimentos adheridos) fue estimado y considerado en el Plan de Izaje.",ref:"PRO §3.10 / §7.10",c:true},
+    {n:"6.7",txt:"El punto de pivoteo (inclinación de carga contra el fondo) está indicado claramente en el Plan de Izaje.",ref:"PRO §7.10",c:false},
+    {n:"6.8",txt:"El sistema de comunicación radio está probado con la embarcación de apoyo (si aplica).",ref:"PRO §7.14",c:false},
+  ]},
+  {id:7,titulo:"Izajes en Tándem",norma:"⚠ APLICAR SOLO SI INTERVIENEN 2 O MÁS GRÚAS — ASME B30.5-2.7 / PRO §7.12",items:[
+    {n:"7.1",txt:"El Plan de Izaje en tándem incluye la distribución de carga entre cada grúa, radio de trabajo, posición y trayectoria simultánea.",ref:"ASME B30.5-2.7 / PRO §7.13.3",c:true},
+    {n:"7.2",txt:"Cada grúa opera al máximo del 85% de su capacidad en la configuración de levante definida.",ref:"ASME B30.5-2.7 / PRO §7.12",c:true},
+    {n:"7.3",txt:"Se designó un Rigger Líder que coordina las señales a ambos operadores. Solo él comanda la maniobra.",ref:"ASME B30.5-3.3.2 / PRO §7.13.3",c:true},
+    {n:"7.4",txt:"Los dos sistemas de comunicación (visual / radio) están probados entre el Rigger Líder y ambos Operadores.",ref:"PRO §7.10",c:true},
+    {n:"7.5",txt:"Para tándem con más de 2 grúas: se realizó Reunión de Planificación con toda la línea de mando.",ref:"PRO §7.13.3",c:true},
+  ]},
+  {id:8,titulo:"Condiciones de Bloqueo y Suspensión Inmediata",norma:"PRO-01-SG-03 §7.10 / §7.12",items:[
+    {n:"8.1",txt:"Se comprende que cualquier ítem crítico (en rojo) respondido «NO» obliga a SUSPENDER MANIOBRA antes de continuar.",ref:"PRO §7.12",c:true},
+    {n:"8.2",txt:"El Operador y el Rigger conocen que ante señal PARE de cualquier persona, el Operador detiene el equipo sin excepción.",ref:"ASME B30.5-3.3.2 / PRO §7.10",c:true},
+    {n:"8.3",txt:"Todo el personal conoce el procedimiento ante activación del LMI: llevar carga a posición segura, no forzar el desbloqueo, reportar al Supervisor.",ref:"PRO §7.12",c:true},
+    {n:"8.4",txt:"Se conoce que la activación del LMI por sobrecarga debe investigarse como Incidente Grave.",ref:"PRO §7.12",c:true},
+  ]},
+];
+
+const answers={};
+const obsNotes={};
+let currentStep=0;
+const TOTAL_STEPS=11;
+
+function buildSections(){
+  const container=document.getElementById('dynamicSections');
+  SECCIONES.forEach(sec=>{
+    const div=document.createElement('div');
+    div.className='section-card';
+    div.id='sec-'+sec.id;
+    let html=`<div class="sec-title">${sec.id}. ${sec.titulo}<span>${sec.norma}</span></div>
+<div class="items-wrap">
+<div class="col-header"><div>N°</div><div>Ítem de Verificación</div><div class="ch-ref"><div class="ch-opts"><span>SI</span><span>NO</span><span>N/A</span></div></div></div>`;
+    sec.items.forEach(it=>{
+      html+=`<div class="item-row${it.c?' critico':''}" id="row-${it.n}">
+<div class="item-num">${it.n}</div>
+<div class="item-body"><div class="item-text">${it.txt}</div><div class="item-norma">${it.ref}</div></div>
+<div class="item-opts">
+<button class="opt-btn si" onclick="setAnswer('${it.n}','SI',this)">SI</button>
+<button class="opt-btn no" onclick="setAnswer('${it.n}','NO',this)">NO</button>
+<button class="opt-btn na" onclick="setAnswer('${it.n}','NA',this)">N/A</button>
+</div></div>`;
+    });
+    html+=`<div class="obs-wrap"><div class="obs-label">OBSERVACIONES DE LA SECCIÓN ${sec.id}:</div>
+<textarea id="obs-${sec.id}" placeholder="Registre observaciones..." oninput="obsNotes[${sec.id}]=this.value"></textarea>
+</div></div>`;
+    div.innerHTML=html;
+    container.appendChild(div);
+  });
+}
+
+function setAnswer(num,val,btn){
+  answers[num]=val;
+  const row=document.getElementById('row-'+num);
+  row.classList.remove('answered-si','answered-no','answered-na');
+  row.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  if(val==='SI')row.classList.add('answered-si');
+  if(val==='NO')row.classList.add('answered-no');
+  if(val==='NA')row.classList.add('answered-na');
+  updateProgress();
+}
+
+function navigate(dir){
+  const prev=currentStep;
+  currentStep=Math.max(0,Math.min(TOTAL_STEPS-1,currentStep+dir));
+  document.getElementById('sec-'+prev).classList.remove('active');
+  document.getElementById('sec-'+currentStep).classList.add('active');
+  if(currentStep===9)buildResult();
+  if(currentStep===10)requestAnimationFrame(()=>requestAnimationFrame(initSignaturePads));
+  updateNav();
+  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
+}
+
+function goToStep(n){
+  const prev=currentStep;
+  currentStep=n;
+  document.getElementById('sec-'+prev).classList.remove('active');
+  document.getElementById('sec-'+currentStep).classList.add('active');
+  if(currentStep===9)buildResult();
+  if(currentStep===10)requestAnimationFrame(()=>requestAnimationFrame(initSignaturePads));
+  updateNav();
+  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
+}
+
+function updateNav(){
+  const pct=((currentStep+1)/TOTAL_STEPS*100).toFixed(0);
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('stepLabel').textContent=(currentStep+1)+' / '+TOTAL_STEPS;
+  const footer=document.getElementById('footerCTA');
+  if(currentStep===TOTAL_STEPS-1){
+    footer.innerHTML=`<button class="btn btn-prev" onclick="navigate(-1)">← Anterior</button>
+<button class="btn btn-next" style="background:#2E75B6" onclick="copyReport()">📋 Copiar</button>
+<button class="btn btn-send" id="btnSendMain" onclick="confirmSend()">✉️ Enviar</button>`;
+  }else{
+    footer.innerHTML=`<button class="btn btn-prev" id="btnPrev" onclick="navigate(-1)" style="${currentStep===0?'display:none':''}">← Anterior</button>
+<button class="btn btn-next" id="btnNext" onclick="navigate(1)">Siguiente →</button>`;
+  }
+  buildStepNav();
+}
+
+function updateProgress(){
+  const all=SECCIONES.flatMap(s=>s.items);
+  const answered=all.filter(it=>answers[it.n]).length;
+  const pct=Math.max((currentStep+1)/TOTAL_STEPS*100,answered/all.length*100);
+  document.getElementById('progressBar').style.width=Math.min(pct,100)+'%';
+}
+
+function buildStepNav(){
+  const nav=document.getElementById('stepNav');
+  const labels=['Datos','1.Doc','2.Equipo','3.Acces.','4.Personal','5.Área','6.Marítimo','7.Tándem','8.Bloqueo','Resultado','Firmas'];
+  nav.innerHTML=labels.map((l,i)=>{
+    let cls='step-btn';
+    if(i===currentStep)cls+=' active';
+    else if(i<currentStep)cls+=' done';
+    return `<button class="${cls}" onclick="goToStep(${i})">${l}</button>`;
+  }).join('');
+}
+
+function buildResult(){
+  const all=SECCIONES.flatMap(s=>s.items);
+  let cntSI=0,cntNO=0,cntNA=0,cntPen=0;
+  const noItems=[];
+  all.forEach(it=>{
+    const v=answers[it.n]||'';
+    if(v==='SI')cntSI++;
+    else if(v==='NO'){cntNO++;noItems.push(it);}
+    else if(v==='NA')cntNA++;
+    else cntPen++;
+  });
+  document.getElementById('cnt-si').textContent=cntSI;
+  document.getElementById('cnt-no').textContent=cntNO;
+  document.getElementById('cnt-na').textContent=cntNA;
+  document.getElementById('cnt-pen').textContent=cntPen;
+  const panel=document.getElementById('resultPanel');
+  const existing=panel.querySelector('.result-detail');
+  if(existing)existing.remove();
+  if(cntPen>0){
+    panel.className='result-panel result-pendiente';
+    document.getElementById('resultIcon').textContent='⏳';
+    document.getElementById('resultTitle').textContent='Verificación incompleta';
+    document.getElementById('resultSub').textContent='Quedan '+cntPen+' ítem(s) sin responder';
+  }else if(cntNO>0){
+    panel.className='result-panel result-suspendida';
+    document.getElementById('resultIcon').textContent='🛑';
+    document.getElementById('resultTitle').textContent='MANIOBRA SUSPENDIDA';
+    document.getElementById('resultSub').textContent=cntNO+' ítem(s) respondidos NO';
+    const det=document.createElement('div');
+    det.className='result-detail';
+    det.innerHTML='<ul class="no-items-list">'+noItems.map(it=>`<li>⛔ ${it.n} — ${it.txt.substring(0,70)}…</li>`).join('')+'</ul>';
+    panel.appendChild(det);
+  }else{
+    panel.className='result-panel result-apto';
+    document.getElementById('resultIcon').textContent='✅';
+    document.getElementById('resultTitle').textContent='APTO PARA OPERAR';
+    document.getElementById('resultSub').textContent=cntSI+' ítems confirmados, '+cntNA+' N/A';
+  }
+}
+
+function generateReportText(){
+  const g=id=>(document.getElementById(id)||{}).value||'—';
+  const now=new Date().toLocaleString('es-CL');
+  let txt=`╔══════════════════════════════════════════════════════════════╗
+║  LVRC — LISTA DE VERIFICACIÓN DE RIESGOS CRÍTICOS — IZAJE   ║
+║  FO-SADDN-IZJ-002 Rev.0  |  PRO-01-SG-03 / ASME B30        ║
+╚══════════════════════════════════════════════════════════════╝
+Generado: ${now}
+
+══ DATOS GENERALES ══════════════════════════════════════════════
+Proyecto/Frente : ${g('dg_proyecto')}
+Fecha           : ${g('dg_fecha')}  Hora inicio: ${g('dg_hora_ini')}  Término: ${g('dg_hora_fin')}
+Maniobra        : ${g('dg_maniobra')}
+Equipo de izaje : ${g('dg_equipo')}
+Cap. nominal    : ${g('dg_cap')} t    Peso carga: ${g('dg_peso')} t
+Rigger          : ${g('dg_rigger')}
+Operador        : ${g('dg_operador')}
+Supervisor      : ${g('dg_supervisor')}
+Prevencionista  : ${g('dg_prev')}
+Categoría riesgo: ${g('dg_categoria')}
+Plan de Izaje N°: ${g('dg_plan')}
+`;
+  SECCIONES.forEach(sec=>{
+    txt+='\n══ SECCIÓN '+sec.id+': '+sec.titulo.toUpperCase()+' ══\n';
+    sec.items.forEach(it=>{
+      const v=answers[it.n]||'PENDIENTE';
+      const flag=it.c&&v==='NO'?' ⛔ CRÍTICO':'';
+      txt+='  ['+v.padEnd(7)+'] '+it.n+'. '+it.txt+flag+'\n';
+    });
+    if(obsNotes[sec.id])txt+='  OBSERVACIONES: '+obsNotes[sec.id]+'\n';
+  });
+  const all=SECCIONES.flatMap(s=>s.items);
+  const cntNO=all.filter(it=>answers[it.n]==='NO').length;
+  const cntPen=all.filter(it=>!answers[it.n]).length;
+  const resultado=cntPen>0?'INCOMPLETA':cntNO>0?'🛑 MANIOBRA SUSPENDIDA':'✅ APTO PARA OPERAR';
+  txt+=`\n══ RESULTADO GLOBAL ══════════════════════════════════════════════
+RESULTADO: ${resultado}
+Obs. generales: ${(document.getElementById('obs_global')||{}).value||'—'}
+
+══ FIRMAS ════════════════════════════════════════════════════════
+Rigger        : ${g('f_rigger_nombre')} — Lic. ${g('f_rigger_lic')}
+Operador      : ${g('f_op_nombre')} — Lic. ${g('f_op_lic')}
+Supervisor    : ${g('f_sup_nombre')} (${g('f_sup_cargo')})
+Prevencionista: ${g('f_prev_nombre')} (${g('f_prev_cargo')})
+`;
+  return txt;
+}
+
+function copyReport(){
+  const txt=generateReportText();
+  document.getElementById('modalCopy').classList.remove('open');
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(txt)
+      .then(()=>showToast('✅ Informe copiado al portapapeles','success'))
+      .catch(()=>fallbackCopy(txt));
+  }else{
+    fallbackCopy(txt);
+  }
+}
+
+function fallbackCopy(txt){
+  const ta=document.createElement('textarea');
+  ta.value=txt;
+  ta.setAttribute('readonly','');
+  ta.style.cssText='position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;background:transparent;opacity:0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.setSelectionRange(0,ta.value.length);
+  let ok=false;
+  try{ok=document.execCommand('copy')}catch(e){}
+  document.body.removeChild(ta);
+  if(ok){showToast('✅ Informe copiado','success')}
+  else{
+    const w=window.open('','_blank');
+    if(w){w.document.write('<pre style="font-size:12px;padding:16px;white-space:pre-wrap">'+txt.replace(/</g,'&lt;')+'</pre>')}
+    showToast('ℹ️ Informe abierto en nueva pestaña','');
+  }
+}
+
+function confirmSend(){
+  const key=(document.getElementById('ejs_key')||{}).value;
+  const service=(document.getElementById('ejs_service')||{}).value;
+  if(!key||!key.trim()||!service||!service.trim()){
+    document.getElementById('modalCopy').classList.add('open');
+    return;
+  }
+  const emailFrom=(document.getElementById('email_from')||{}).value;
+  const emailBackup=(document.getElementById('email_backup')||{}).value;
+  if(!emailFrom||!emailFrom.trim()||!emailBackup||!emailBackup.trim()){
+    showToast('⚠ Ingresa ambos correos','error');return;
+  }
+  document.getElementById('modalSendMsg').textContent='Se enviará el informe a:\n• '+emailFrom+'\n• '+emailBackup;
+  document.getElementById('modalSend').classList.add('open');
+}
+
+async function sendReport(){
+  document.getElementById('modalSend').classList.remove('open');
+  const btn=document.getElementById('btnSendMain');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Enviando…'}
+  const key=document.getElementById('ejs_key').value.trim();
+  const service=document.getElementById('ejs_service').value.trim();
+  const emailFrom=document.getElementById('email_from').value.trim();
+  const emailBackup=document.getElementById('email_backup').value.trim();
+  const report=generateReportText();
+  const all=SECCIONES.flatMap(s=>s.items);
+  const cntNO=all.filter(it=>answers[it.n]==='NO').length;
+  const resultado=cntNO>0?'🛑 MANIOBRA SUSPENDIDA':'✅ APTO PARA OPERAR';
+  const proyecto=document.getElementById('dg_proyecto').value||'SADDN';
+  const fecha=document.getElementById('dg_fecha').value||new Date().toLocaleDateString('es-CL');
+  if(typeof emailjs==='undefined'){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+      s.onload=res;s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
+  try{
+    emailjs.init(key);
+    await emailjs.send(service,'template_lvrc_izaje',{
+      to_email:emailFrom,to_backup:emailBackup,
+      from_name:'LVRC SADDN — Sistema de Verificación',
+      subject:'LVRC Izaje | '+resultado+' | '+proyecto+' | '+fecha,
+      message:report,resultado,proyecto,fecha
+    });
+    showToast('✅ Informe enviado correctamente','success');
+    if(btn){btn.disabled=false;btn.innerHTML='✅ Enviado';btn.style.background='#1E6B31'}
+  }catch(err){
+    console.error(err);
+    showToast('❌ Error al enviar. Usa «Copiar informe».','error');
+    if(btn){btn.disabled=false;btn.innerHTML='✉️ Enviar'}
+  }
+}
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast '+(type||'')+' show';
+  setTimeout(()=>t.className='toast',3200);
+}
+
+function initSignaturePads(){
+  document.querySelectorAll('canvas.sig-pad').forEach(canvas=>{
+    if(canvas._initialized)return;
+    canvas._initialized=true;
+    const dpr=window.devicePixelRatio||1;
+    const rect=canvas.getBoundingClientRect();
+    const w=rect.width||280;
+    const h=rect.height||70;
+    canvas.width=Math.round(w*dpr);
+    canvas.height=Math.round(h*dpr);
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    ctx.scale(dpr,dpr);
+    let drawing=false,lastX=0,lastY=0;
+    function getPos(e){
+      const r=canvas.getBoundingClientRect();
+      if(e.touches&&e.touches.length>0)return[e.touches[0].clientX-r.left,e.touches[0].clientY-r.top];
+      return[e.clientX-r.left,e.clientY-r.top];
+    }
+    function start(e){e.preventDefault();e.stopPropagation();drawing=true;[lastX,lastY]=getPos(e)}
+    function draw(e){
+      if(!drawing)return;
+      e.preventDefault();e.stopPropagation();
+      const[x,y]=getPos(e);
+      ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);
+      ctx.strokeStyle='#1F4E79';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+      [lastX,lastY]=[x,y];
+    }
+    function stop(e){if(e){e.preventDefault();e.stopPropagation()}drawing=false}
+    canvas.addEventListener('mousedown',start);
+    canvas.addEventListener('mousemove',draw);
+    canvas.addEventListener('mouseup',stop);
+    canvas.addEventListener('mouseleave',stop);
+    canvas.addEventListener('touchstart',start,{passive:false});
+    canvas.addEventListener('touchmove',draw,{passive:false});
+    canvas.addEventListener('touchend',stop,{passive:false});
+    canvas.addEventListener('touchcancel',stop,{passive:false});
+  });
+  document.querySelectorAll('.clear-sig').forEach(btn=>{
+    btn.onclick=function(e){
+      e.preventDefault();
+      const c=document.getElementById(this.dataset.target);
+      const dpr=window.devicePixelRatio||1;
+      c._initialized=false;
+      const ctx=c.getContext('2d',{willReadFrequently:true});
+      ctx.clearRect(0,0,c.width/dpr,c.height/dpr);
+    };
+  });
+}
+
+function init(){
+  buildSections();
+  buildStepNav();
+  updateNav();
+  document.getElementById('dg_fecha').value=new Date().toISOString().split('T')[0];
+  requestAnimationFrame(()=>requestAnimationFrame(initSignaturePads));
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
